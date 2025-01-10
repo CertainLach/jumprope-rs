@@ -287,6 +287,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fbf6a919d6cf397374f7dfeeea91d974c7c0a7221d0d0f4f20d859d329e53fcc"
 
 [[package]]
+name = "hi-doc-jumprope"
+version = "1.2.0"
+dependencies = [
+ "crdt-testdata",
+ "criterion",
+ "rand",
+ "str_indices",
+]
+
+[[package]]
 name = "is-terminal"
 version = "0.4.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -323,21 +333,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "jumprope"
-version = "1.1.2"
-dependencies = [
- "crdt-testdata",
- "criterion",
- "rand",
- "str_indices",
-]
-
-[[package]]
 name = "jumprope-wasm"
 version = "0.1.0"
 dependencies = [
  "getrandom",
- "jumprope",
+ "hi-doc-jumprope",
  "wasm-bindgen",
 ]
 
@@ -566,7 +566,7 @@ dependencies = [
  "crdt-testdata",
  "criterion",
  "crop",
- "jumprope",
+ "hi-doc-jumprope",
  "rand",
  "ropey",
  "xi-rope",

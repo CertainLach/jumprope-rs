@@ -7,10 +7,10 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["ddos_protection", "jumprope/wchar_conversion"]
+default = ["ddos_protection", "hi-doc-jumprope/wchar_conversion"]
 #default = ["ddos_protection"]
 #default = ["jumprope/wchar_conversion"]
-ddos_protection = ["jumprope/ddos_protection"]
+ddos_protection = ["hi-doc-jumprope/ddos_protection"]
 
 [dependencies]
 wasm-bindgen = "0.2"
@@ -18,7 +18,7 @@ wasm-bindgen = "0.2"
 # Disable default-features to remove obsessive ddos protection by default to
 # reduce code size. (42kb -> 33kb). SmallRng is still plenty secure for most
 # applications.
-jumprope = { path = "..", default-features = false }
+hi-doc-jumprope = { path = "..", default-features = false }
 
 # Needed for rand in wasm, regardless of whether entropy is used.
 getrandom = { version = "0.2.3", features = ["js"] }

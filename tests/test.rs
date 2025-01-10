@@ -1,6 +1,8 @@
 // These tests are also adapted from the C code tests here:
 // https://github.com/josephg/librope/blob/master/test/tests.c
 
+extern crate hi_doc_jumprope as jumprope;
+
 use rand::prelude::*;
 
 use std::cmp::min;

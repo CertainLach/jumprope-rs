@@ -10,7 +10,7 @@
 //! ## Example
 //!
 //! ```
-//! use jumprope::JumpRope;
+//! use hi_doc_jumprope::JumpRope;
 //!
 //! let mut rope = JumpRope::from("Some large text document");
 //! rope.insert(5, "really "); // "Some really large text document"
@@ -72,7 +72,7 @@
 //! emoji + variation selector). And it takes 16 bytes to store in UTF8.
 //!
 //! ```
-//! # use jumprope::*;
+//! # use hi_doc_jumprope::*;
 //! assert_eq!("🐻‍❄️".len(), 13);
 //! assert_eq!("🐻‍❄️".chars().count(), 4);
 //!
@@ -113,7 +113,7 @@
 //! Jumprope follows this approach, using unicode character positions everywhere internally:
 //!
 //! ```
-//! # use jumprope::*;
+//! # use hi_doc_jumprope::*;
 //! let mut rope = JumpRope::from("🐻‍❄️");
 //! rope.remove(1..4); // Remove "polar" from our polar bear
 //! assert_eq!(rope, "🐻");

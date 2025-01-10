@@ -9,7 +9,7 @@ cc = "1.0"
 
 [dependencies]
 criterion = "0.5"
-jumprope = { path = ".." }
+hi-doc-jumprope = { path = ".." }
 rand = { version = "0.8", default-features = false, features = ["small_rng"] }
 ropey = "1.6.0"
 xi-rope = "0.3.0"

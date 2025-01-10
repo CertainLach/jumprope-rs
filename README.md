@@ -1,4 +1,4 @@
-# JumpRope
+# JumpRope (hi-doc fork)
 
 Because inserting into a string should be fast.
 

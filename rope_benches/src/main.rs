@@ -1,6 +1,7 @@
 
 // #[macro_use]
 extern crate criterion;
+extern crate hi_doc_jumprope as jumprope;
 use criterion::*;
 
 use crdt_testdata::*;

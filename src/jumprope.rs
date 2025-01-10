@@ -424,7 +424,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// assert_eq!("↯".len(), 3);
     ///
     /// let rope = JumpRope::from("↯");
@@ -1188,7 +1188,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let mut rope = JumpRope::from("--");
     /// rope.insert(1, "hi there");
     /// assert_eq!(rope.to_string(), "-hi there-");
@@ -1217,7 +1217,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let mut rope = JumpRope::from("Whoa dawg!");
     /// rope.remove(4..9); // delete " dawg"
     /// assert_eq!(rope.to_string(), "Whoa!");
@@ -1241,7 +1241,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let mut rope = JumpRope::from("Hi Mike!");
     /// rope.replace(3..7, "Duane"); // replace "Mike" with "Duane"
     /// assert_eq!(rope.to_string(), "Hi Duane!");
@@ -1272,7 +1272,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let str = "κόσμε"; // "Cosmos" in ancient greek
     /// assert_eq!(str.len(), 11); // 11 bytes over the wire
     ///

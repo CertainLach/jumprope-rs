@@ -172,7 +172,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let rope = JumpRope::from("oh hai");
     /// let mut string = String::new();
     /// for str in rope.substrings() {
@@ -200,7 +200,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let rope = JumpRope::from("oh hai");
     /// let mut string = String::new();
     /// for (str, char_len) in rope.substrings_with_len() {
@@ -224,7 +224,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let rope = JumpRope::from("oh hai");
     /// assert_eq!("oh hai", rope.chars().collect::<String>());
     /// ```
@@ -240,7 +240,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let rope = JumpRope::from("xxxGreetings!xxx");
     /// let mut string = String::new();
     /// for s in rope.slice_substrings(3..rope.len_chars() - 3) {
@@ -257,7 +257,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let rope = JumpRope::from("xxxGreetings!xxx");
     /// let mut string = String::new();
     /// for (str, char_len) in rope.slice_substrings_with_len(3..rope.len_chars() - 3) {
@@ -270,7 +270,7 @@ impl JumpRope {
     /// Or more simply:
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let rope = JumpRope::from("xxxGreetings!xxx");
     /// let string = rope.slice_substrings_with_len(3..13).map(|(str, _len)| str).collect::<String>();
     /// assert_eq!(string, "Greetings!");
@@ -301,7 +301,7 @@ impl JumpRope {
     /// # Example
     ///
     /// ```
-    /// # use jumprope::*;
+    /// # use hi_doc_jumprope::*;
     /// let rope = JumpRope::from("xxxGreetings!xxx");
     ///
     /// assert_eq!("Greetings!",

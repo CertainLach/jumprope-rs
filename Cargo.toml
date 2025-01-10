@@ -1,10 +1,10 @@
 [package]
-name = "jumprope"
-version = "1.1.2"
-authors = ["Joseph Gentle <me@josephg.com>"]
+name = "hi-doc-jumprope"
+version = "1.2.0"
+authors = ["Joseph Gentle <me@josephg.com>", "Yaroslav Bolyukin <iam@lach.pw>"]
 edition = "2021"
-description = "Simple, fast rope (fancy string) library built on top of Skiplists"
-repository = "https://github.com/josephg/jumprope-rs"
+description = "Simple, fast rope (fancy string) library built on top of Skiplists - hi-doc fork"
+repository = "https://github.com/CertainLach/jumprope-rs"
 license = "ISC OR Apache-2.0"
 exclude = [
     "benchmark_data/*",

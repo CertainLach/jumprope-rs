@@ -1,3 +1,5 @@
+extern crate hi_doc_jumprope as jumprope;
+
 use wasm_bindgen::prelude::*;
 use jumprope::JumpRope;
 
