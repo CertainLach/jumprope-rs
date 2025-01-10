@@ -1,5 +1,4 @@
 target
-Cargo.lock
 .idea
 yarn.lock
 node_modules
