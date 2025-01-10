@@ -14,6 +14,9 @@ exclude = [
 [workspace]
 members = ["jumprope-wasm", "rope_benches", "crdt-testdata"]
 
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(doc_cfg)'] }
+
 [features]
 default = ["ddos_protection"]
 # ddos_protection makes jumprope use a better RNG algorithm to avoid DOS
@@ -34,7 +37,7 @@ rand = { version = "0.8", default-features = false, features = ["small_rng"] }
 str_indices = "0.4.0"
 
 [dev-dependencies]
-criterion = "0.4.0"
+criterion = "0.5"
 crdt-testdata = { path = "./crdt-testdata" }
 
 [[bench]]
