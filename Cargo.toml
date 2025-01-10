@@ -18,7 +18,7 @@ members = ["jumprope-wasm", "rope_benches", "crdt-testdata"]
 default = ["ddos_protection"]
 # ddos_protection makes jumprope use a better RNG algorithm to avoid DOS
 # attacks
-ddos_protection = []
+ddos_protection = ["rand/std_rng", "rand/std"]
 # wchar_conversion adds support for converting wchar positions (eg from JS or
 # ObjC) into local unicode offsets.
 wchar_conversion = []
@@ -30,7 +30,7 @@ line_conversion = []
 buffered = []
 
 [dependencies]
-rand = { version = "0.8", features = ["small_rng"] }
+rand = { version = "0.8", default-features = false, features = ["small_rng"] }
 str_indices = "0.4.0"
 
 [dev-dependencies]
