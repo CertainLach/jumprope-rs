@@ -5,13 +5,13 @@ name = "rope_benches"
 version = "0.1.0"
 
 [build-dependencies]
-cc = "1.0"
+cc = "1.2"
 
 [dependencies]
-criterion = "0.5"
+criterion = "0.8"
 hi-doc-jumprope = { path = ".." }
-rand = { version = "0.8", default-features = false, features = ["small_rng"] }
-ropey = "1.6.0"
+rand = { version = "0.9", default-features = false, features = ["small_rng"] }
+ropey = "1.6.1"
 xi-rope = "0.3.0"
 an-rope = "0.3.1" # tendril feature will improve performance, but it uses an outdated dependency, which doesn't build on newer rustc versions
 crdt-testdata = { path = "../crdt-testdata" }

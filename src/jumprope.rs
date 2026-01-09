@@ -124,7 +124,7 @@ fn random_height(rng: &mut RopeRng) -> u8 {
     let mut h: u8 = 1;
     // TODO: This is using the thread_local rng, which is secure (?!). Check
     // this is actually fast.
-    while h < MAX_HEIGHT_U8 && rng.gen::<u8>() < BIAS { h+=1; }
+    while h < MAX_HEIGHT_U8 && rng.random::<u8>() < BIAS { h+=1; }
     h
 }
 
@@ -390,13 +390,13 @@ impl JumpRope {
         if cfg!(test) || cfg!(debug_assertions) || !cfg!(feature = "ddos_protection") {
             Self::new_from_seed(123)
         } else {
-            Self::new_from_entropy()
+            Self::new_from_rng(&mut rand::rng())
         }
     }
 
     /// Creates a new, empty rope seeded from an entropy source.
-    pub fn new_from_entropy() -> Self {
-        Self::new_with_rng(RopeRng::from_entropy())
+    pub fn new_from_rng(rng: &mut impl RngCore) -> Self {
+        Self::new_with_rng(RopeRng::from_rng(rng))
     }
 
     /// Creates a new, empty rope using an RNG seeded from the passed u64 parameter.

@@ -6,3 +6,4 @@ src/params.rs
 stats.md
 bench/*.json
 .*.swp
+/.direnv
