@@ -27,7 +27,7 @@ unsafe fn slice_to_str(arr: &[u8]) -> &str {
     if cfg!(debug_assertions) {
         std::str::from_utf8(arr).unwrap()
     } else {
-        std::str::from_utf8_unchecked(arr)
+        unsafe { std::str::from_utf8_unchecked(arr) }
     }
 }
 
@@ -267,7 +267,7 @@ impl<const LEN: usize> GapBuffer<LEN> {
         // At this point the gap is guaranteed to be directly after pos.
         let rm_end_bytes = self.int_str_get_byte_offset(self.end_as_str(), del_len);
         self.remove_after_gap(rm_end_bytes);
-        rm_start_bytes as usize + rm_end_bytes
+        rm_start_bytes + rm_end_bytes
     }
 
     pub fn start_as_str(&self) -> &str {
@@ -376,6 +376,7 @@ impl<const LEN: usize> GapBuffer<LEN> {
     }
 }
 
+#[allow(clippy::to_string_trait_impl, reason = "Display trait does not allow to reserve capacity")]
 impl<const LEN: usize> ToString for GapBuffer<LEN> {
     fn to_string(&self) -> String {
         let mut result = String::with_capacity(self.len_bytes());

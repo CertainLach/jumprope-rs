@@ -10,16 +10,21 @@ use std::ptr;
 impl Rope for String {
     const NAME: &'static str = "String";
 
-    fn new() -> Self { String::new() }
-    
+    fn new() -> Self {
+        String::new()
+    }
+
     fn insert_at(&mut self, char_pos: usize, contents: &str) {
         // If you try to write past the end of the string for now I'll just write at the end.
         // Panicing might be a better policy.
-        let byte_pos = self.char_indices().skip(char_pos).next()
-            .map(|(p, _)| p).unwrap_or(self.len());
+        let byte_pos = self
+            .char_indices()
+            .nth(char_pos)
+            .map(|(p, _)| p)
+            .unwrap_or(self.len());
         //println!("pos {}", byte_pos);
         //self.insert_str(byte_pos, contents);
-        
+
         let old_len = self.len();
         let new_bytes = contents.len();
 
@@ -27,22 +32,20 @@ impl Rope for String {
         //self.reserve(new_bytes);
 
         // This is sort of ugly but its fine.
-        for _ in 0..new_bytes { self.push('\0'); }
+        for _ in 0..new_bytes {
+            self.push('\0');
+        }
 
         //println!("new bytes {} {} {}", new_bytes, byte_pos, self.len() - byte_pos);
         unsafe {
             let bytes = self.as_mut_vec().as_mut_ptr();
             //println!("{:?}", self.as_mut_vec());
             ptr::copy(
-                bytes.offset(byte_pos as isize),
-                bytes.offset((byte_pos + new_bytes) as isize),
-                old_len - byte_pos
+                bytes.add(byte_pos),
+                bytes.add(byte_pos + new_bytes),
+                old_len - byte_pos,
             );
-            ptr::copy_nonoverlapping(
-                contents.as_ptr(),
-                bytes.offset(byte_pos as isize),
-                new_bytes
-            );
+            ptr::copy_nonoverlapping(contents.as_ptr(), bytes.add(byte_pos), new_bytes);
             //println!("{:?}", self.as_mut_vec());
         }
     }
@@ -61,11 +64,13 @@ impl Rope for String {
     }
 
     // fn len(&self) -> usize { self.len() }
-    fn char_len(&self) -> usize { self.chars().count() }
-    fn to_string(&self) -> String { self.clone() }
+    fn char_len(&self) -> usize {
+        self.chars().count()
+    }
+    fn to_string(&self) -> String {
+        self.clone()
+    }
 }
-
-
 
 #[cfg(test)]
 mod tests {

@@ -92,7 +92,7 @@ pub(crate) unsafe fn count_utf16_surrogates_in_bytes(text: &[u8]) -> usize {
 
         utf16_surrogate_count
     } else {
-        str_indices::utf16::count_surrogates(std::str::from_utf8_unchecked(text))
+        str_indices::utf16::count_surrogates(unsafe { std::str::from_utf8_unchecked(text) })
     }
 }
 

@@ -1,6 +1,6 @@
-use std::ops::Range;
 use crate::jumprope::*;
 use crate::utils::str_chars_to_bytes;
+use std::ops::Range;
 
 /// An iterator over chunks (nodes) in the list.
 pub(crate) struct NodeIter<'a>(Option<&'a Node>);
@@ -46,7 +46,10 @@ impl<'a> Iterator for ContentIter<'a> {
             } else {
                 self.next = unsafe { n.next_ptr().as_ref() };
                 self.at_start = true;
-                (n.str.end_as_str(), n.num_chars() - n.str.gap_start_chars as usize)
+                (
+                    n.str.end_as_str(),
+                    n.num_chars() - n.str.gap_start_chars as usize,
+                )
             };
 
             if s.1 > 0 {
@@ -60,16 +63,16 @@ impl<'a> Iterator for ContentIter<'a> {
 
 /// Iterator over the substrings in some content. This is just a hand-written .map(|s, len| s)
 /// iterator to make it possible to embed a jumprope iterator inside another iterator.
-pub struct Substrings<'a, I: Iterator<Item=(&'a str, usize)> = ContentIter<'a>>(I);
+pub struct Substrings<'a, I: Iterator<Item = (&'a str, usize)> = ContentIter<'a>>(I);
 
-impl<'a, I: Iterator<Item=(&'a str, usize)>> Substrings<'a, I> {
+impl<'a, I: Iterator<Item = (&'a str, usize)>> Substrings<'a, I> {
     /// Convert this content into a string
     pub fn into_string(self) -> String {
         self.collect::<String>()
     }
 }
 
-impl<'a, I: Iterator<Item=(&'a str, usize)>> Iterator for Substrings<'a, I> {
+impl<'a, I: Iterator<Item = (&'a str, usize)>> Iterator for Substrings<'a, I> {
     type Item = &'a str;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -78,21 +81,21 @@ impl<'a, I: Iterator<Item=(&'a str, usize)>> Iterator for Substrings<'a, I> {
 }
 
 /// Iterator over the individual characters in a rope (or rope slice).
-pub struct Chars<'a, I: Iterator<Item=(&'a str, usize)> = ContentIter<'a>> {
+pub struct Chars<'a, I: Iterator<Item = (&'a str, usize)> = ContentIter<'a>> {
     inner: I,
     current: std::str::Chars<'a>,
 }
 
-impl<'a, I: Iterator<Item=(&'a str, usize)>> From<I> for Chars<'a, I> {
+impl<'a, I: Iterator<Item = (&'a str, usize)>> From<I> for Chars<'a, I> {
     fn from(inner: I) -> Self {
         Self {
             inner,
-            current: "".chars()
+            current: "".chars(),
         }
     }
 }
 
-impl<'a, I: Iterator<Item=(&'a str, usize)>> Iterator for Chars<'a, I> {
+impl<'a, I: Iterator<Item = (&'a str, usize)>> Iterator for Chars<'a, I> {
     type Item = char;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -130,7 +133,9 @@ impl<'a> Iterator for SliceIter<'a> {
     type Item = (&'a str, usize);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.take_len == 0 { return None; }
+        if self.take_len == 0 {
+            return None;
+        }
 
         self.inner.next().map(|(mut s, mut char_len)| {
             if self.skip > 0 {
@@ -156,7 +161,9 @@ impl<'a> Iterator for SliceIter<'a> {
 }
 
 impl JumpRope {
-    pub(crate) fn node_iter_at_start(&self) -> NodeIter { NodeIter(Some(&self.head)) }
+    pub(crate) fn node_iter_at_start(&self) -> NodeIter<'_> {
+        NodeIter(Some(&self.head))
+    }
 
     /// Iterate over the rope, visiting each substring in [`str`] chunks. Whenever possible, this is
     /// the best way for a program to read back the contents of a rope, because it avoids allocating
@@ -209,10 +216,10 @@ impl JumpRope {
     /// }
     /// assert_eq!(string, "oh hai");
     /// ```
-    pub fn substrings_with_len(&self) -> ContentIter {
+    pub fn substrings_with_len(&self) -> ContentIter<'_> {
         ContentIter {
             next: Some(&self.head),
-            at_start: true
+            at_start: true,
         }
     }
 
@@ -228,11 +235,9 @@ impl JumpRope {
     /// let rope = JumpRope::from("oh hai");
     /// assert_eq!("oh hai", rope.chars().collect::<String>());
     /// ```
-    pub fn chars(&self) -> Chars {
+    pub fn chars(&self) -> Chars<'_> {
         self.substrings_with_len().chars()
     }
-
-
 
     /// Iterate through all the substrings within the specified unicode character range in the
     /// document.
@@ -248,7 +253,7 @@ impl JumpRope {
     /// }
     /// assert_eq!(string, "Greetings!");
     /// ```
-    pub fn slice_substrings(&self, range: Range<usize>) -> SubstringsInRange {
+    pub fn slice_substrings(&self, range: Range<usize>) -> SubstringsInRange<'_> {
         self.slice_substrings_with_len(range).substrings()
     }
 
@@ -275,7 +280,7 @@ impl JumpRope {
     /// let string = rope.slice_substrings_with_len(3..13).map(|(str, _len)| str).collect::<String>();
     /// assert_eq!(string, "Greetings!");
     /// ```
-    pub fn slice_substrings_with_len(&self, range: Range<usize>) -> SliceIter {
+    pub fn slice_substrings_with_len(&self, range: Range<usize>) -> SliceIter<'_> {
         let cursor = self.read_cursor_at_char(range.start, false);
         let node_gap_start = cursor.node.str.gap_start_chars as usize;
         let local_pos = cursor.offset_chars;
@@ -288,10 +293,11 @@ impl JumpRope {
 
         SliceIter {
             inner: ContentIter {
-                next: Some(cursor.node), at_start
+                next: Some(cursor.node),
+                at_start,
             },
             skip,
-            take_len: range.end - range.start
+            take_len: range.end - range.start,
         }
     }
 
@@ -308,11 +314,14 @@ impl JumpRope {
     ///     rope.slice_chars(3..rope.len_chars() - 3).collect::<String>()
     /// );
     /// ```
-    pub fn slice_chars(&self, range: Range<usize>) -> CharsInRange {
+    pub fn slice_chars(&self, range: Range<usize>) -> CharsInRange<'_> {
         self.slice_substrings_with_len(range).chars()
     }
 
-    // We also have a to_string implementation from Display, but that doesn't provide size hints.
+    #[allow(
+        clippy::inherent_to_string_shadow_display,
+        reason = "We also have a to_string implementation from Display, but that doesn't provide size hints"
+    )]
     pub fn to_string(&self) -> String {
         let mut result = String::with_capacity(self.len_bytes());
         for s in self.substrings() {
@@ -325,8 +334,8 @@ impl JumpRope {
 #[cfg(test)]
 mod tests {
     use crate::fast_str_tools::*;
-    use crate::JumpRope;
     use crate::jumprope::NODE_STR_SIZE;
+    use crate::JumpRope;
 
     fn check(rope: &JumpRope) {
         for (s, len) in rope.substrings_with_len() {
@@ -339,9 +348,15 @@ mod tests {
             assert_ne!(len, 0); // Returned items may not be empty.
         }
 
-        assert_eq!(rope.substrings_with_len().chars().collect::<String>(), rope.to_string());
+        assert_eq!(
+            rope.substrings_with_len().chars().collect::<String>(),
+            rope.to_string()
+        );
         assert_eq!(rope.chars().collect::<String>(), rope.to_string());
-        assert_eq!(rope.slice_chars(0..rope.len_chars()).collect::<String>(), rope.to_string());
+        assert_eq!(
+            rope.slice_chars(0..rope.len_chars()).collect::<String>(),
+            rope.to_string()
+        );
 
         let s = rope.to_string();
         for start in 0..=rope.len_chars() {
@@ -370,7 +385,9 @@ mod tests {
         check(&rope);
 
         assert_eq!(
-            rope.slice_substrings_with_len(3..s.len() - 3).chars().collect::<String>(),
+            rope.slice_substrings_with_len(3..s.len() - 3)
+                .chars()
+                .collect::<String>(),
             &s[3..s.len() - 3]
         );
     }
@@ -383,7 +400,7 @@ mod tests {
     #[test]
     fn iter_chars_tricky() {
         let mut rope = JumpRope::new();
-        rope.extend(std::iter::repeat("x").take(NODE_STR_SIZE * 2));
+        rope.extend(std::iter::repeat_n("x", NODE_STR_SIZE * 2));
         check(&rope);
     }
 }

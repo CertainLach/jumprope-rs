@@ -1,9 +1,10 @@
-use criterion::*;
 use crdt_testdata::*;
+use criterion::*;
+use std::hint::black_box;
 
-use jumprope::{JumpRope, JumpRopeBuf};
+use hi_doc_jumprope::{JumpRope, JumpRopeBuf};
 
-fn count_chars(s: &String) -> usize {
+fn count_chars(s: &str) -> usize {
     s.chars().count()
 }
 
@@ -20,10 +21,12 @@ fn collapse(test_data: &TestData) -> Vec<Op> {
     let mut merge = |op: Op| {
         let append = match (&op, result.last_mut()) {
             (Ins(pos, new_content), Some(Ins(cur_pos, cur_content))) => {
-                if *pos == *cur_pos + count_chars(&cur_content) {
+                if *pos == *cur_pos + count_chars(cur_content) {
                     cur_content.push_str(new_content.as_str());
                     false
-                } else { true }
+                } else {
+                    true
+                }
             }
             (Del(pos, new_del), Some(Del(cur_pos, cur_del))) => {
                 if *pos == *cur_pos {
@@ -42,7 +45,9 @@ fn collapse(test_data: &TestData) -> Vec<Op> {
             _ => true,
         };
 
-        if append { result.push(op); }
+        if append {
+            result.push(op);
+        }
     };
 
     for txn in test_data.txns.iter() {
@@ -63,7 +68,12 @@ fn testing_data(name: &str) -> TestData {
     load_testing_data(&filename)
 }
 
-const DATASETS: &[&str] = &["automerge-paper", "rustcode", "sveltecomponent", "seph-blog1"];
+const DATASETS: &[&str] = &[
+    "automerge-paper",
+    "rustcode",
+    "sveltecomponent",
+    "seph-blog1",
+];
 
 fn realworld_benchmarks(c: &mut Criterion) {
     for name in DATASETS {
@@ -73,8 +83,10 @@ fn realworld_benchmarks(c: &mut Criterion) {
         let merged = collapse(&test_data);
         assert_eq!(test_data.start_content.len(), 0);
 
-        let len = test_data.txns.iter()
-            .flat_map(|txn| txn.patches.iter() )
+        let len = test_data
+            .txns
+            .iter()
+            .flat_map(|txn| txn.patches.iter())
             .map(|patch| patch.1 + patch.2.len())
             .sum::<usize>();
         group.throughput(Throughput::Elements(len as u64));
@@ -84,7 +96,7 @@ fn realworld_benchmarks(c: &mut Criterion) {
                 let mut rope = JumpRope::new();
                 for txn in test_data.txns.iter() {
                     for TestPatch(pos, del_span, ins_content) in &txn.patches {
-                        rope.replace(*pos .. *pos + *del_span, ins_content);
+                        rope.replace(*pos..*pos + *del_span, ins_content);
                         // if *del_span > 0 {
                         //     rope.remove(*pos .. *pos + *del_span);
                         // }

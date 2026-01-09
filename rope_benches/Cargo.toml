@@ -1,6 +1,6 @@
 [package]
 authors = ["Joseph Gentle <me@josephg.com>"]
-edition = "2018"
+edition = "2024"
 name = "rope_benches"
 version = "0.1.0"
 

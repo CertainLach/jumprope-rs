@@ -65,7 +65,7 @@
 //! - The number of bytes needed to represent the string, in some specific encoding (eg UTF8)
 //! - The number of unicode characters contained within
 //! - The number of grapheme clusters in the string. This is the number of characters drawn to
-//! the screen.
+//!   the screen.
 //!
 //! For example, the unicode polar bear ("🐻‍❄️") has a single grapheme cluster (only one
 //! character is drawn). It contains 4 unicode characters (Bear emoji + zero width joiner + snow
@@ -95,11 +95,11 @@
 //! But there is no perfect "length" property for a string anyway:
 //!
 //! - The number of bytes is encoding-specific. The polar bear takes 16 bytes in UTF8, but only 10
-//! bytes in UTF16.
+//!   bytes in UTF16.
 //! - The number of grapheme clusters varies by device, font and software version. The conversion
-//! from characters to grapheme clusters is complex, and changes all the time. The polar bear
-//! icon was only added in May 2019. If your software is older than that (or uses a text library
-//! older than that), you will just see "🐻❄️".
+//!   from characters to grapheme clusters is complex, and changes all the time. The polar bear
+//!   icon was only added in May 2019. If your software is older than that (or uses a text library
+//!   older than that), you will just see "🐻❄️".
 //!
 //! Most CRDTs and OT systems are slowly standardizing on counting unicode character positions as
 //! the default "length" property. The number of unicode characters isn't human-meaningful, but it
@@ -108,7 +108,7 @@
 //! - Its simple and easy to define
 //! - Its stable across time (unlike grapheme clusters)
 //! - Its rarely convenient, but its very portable across different programming languages,
-//! regardless of that language's character encoding system.
+//!   regardless of that language's character encoding system.
 //!
 //! Jumprope follows this approach, using unicode character positions everywhere internally:
 //!

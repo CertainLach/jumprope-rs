@@ -17,6 +17,7 @@ use jumprope::*;
 mod edittablestr;
 
 use std::cmp::min;
+use std::hint::black_box;
 
 use ropey::Rope as RopeyRope;
 use an_rope::Rope as AnRope;
@@ -30,7 +31,7 @@ fn random_ascii_string(rng: &mut SmallRng, len: usize) -> String {
     let mut s = String::new();
     for _ in 0..len {
         // s.push(*rng.choose(CHARS).unwrap() as char);
-        s.push(CHARS[rng.gen_range(0 .. CHARS.len())] as char);
+        s.push(CHARS[rng.random_range(0 .. CHARS.len())] as char);
     }
     s
 }
@@ -196,7 +197,7 @@ use criterion::measurement::WallTime;
 #[repr(C)]
 struct CRopeRaw { _unused : [ u8 ; 0 ] }
 
-extern {
+unsafe extern "C" {
     fn rope_new() -> *mut CRopeRaw;
     fn rope_new_with_utf8(s: *const c_char) -> *mut CRopeRaw;
     fn rope_free(r: *mut CRopeRaw);
@@ -254,7 +255,7 @@ fn gen_strings(rng: &mut SmallRng) -> Vec<String> {
     // I wish there was a better syntax for just making an array here.
     let mut strings = Vec::<String>::new();
     for _ in 0..100 {
-        let len = rng.gen_range(1 .. 3);
+        let len = rng.random_range(1 .. 3);
         strings.push(random_ascii_string(rng, len));
     }
 
@@ -269,7 +270,7 @@ fn ins_append<R: Rope>(b: &mut Bencher) {
     let mut len = 0;
     b.iter(|| {
         // let pos = rng.gen_range(0, len+1);
-        let text = &strings[rng.gen_range(0 .. strings.len())];
+        let text = &strings[rng.random_range(0 .. strings.len())];
         r.insert_at(len, text.as_str());
         len += text.chars().count();
     });
@@ -285,8 +286,8 @@ fn ins_random<R: Rope>(b: &mut Bencher) {
     // Len isn't needed, but its here to allow direct comparison with ins_append.
     let mut len = 0;
     b.iter(|| {
-        let pos = rng.gen_range(0 .. len+1);
-        let text = &strings[rng.gen_range(0 .. strings.len())];
+        let pos = rng.random_range(0 .. len+1);
+        let text = &strings[rng.random_range(0 .. strings.len())];
         r.insert_at(pos, text.as_str());
         len += text.chars().count();
     });
@@ -317,14 +318,14 @@ fn stable_ins_del<R: Rope + From<String>>(b: &mut Bencher, target_length: &u64) 
         // if len == 0 || rng.gen::<bool>() {
         if len <= target_length {
             // Insert
-            let pos = rng.gen_range(0 .. len+1);
-            let text = &strings[rng.gen_range(0 .. strings.len())];
+            let pos = rng.random_range(0 .. len+1);
+            let text = &strings[rng.random_range(0 .. strings.len())];
             r.insert_at(pos, text.as_str());
             len += text.chars().count();
         } else {
             // Delete
-            let pos = rng.gen_range(0 .. len);
-            let dlen = min(rng.gen_range(0 .. 10), len - pos);
+            let pos = rng.random_range(0 .. len);
+            let dlen = min(rng.random_range(0 .. 10), len - pos);
             len -= dlen;
 
             r.del_at(pos, dlen);
@@ -379,14 +380,15 @@ fn bench_stable_ins_del(c: &mut Criterion) {
     group.finish();
 }
 
-fn load_named_data(name: &str) -> TestData {
-    let filename = format!("/home/seph/src/diamond-types/benchmark_data/{}.json.gz", name);
-    load_testing_data(&filename)
-}
+// fn load_named_data(name: &str) -> TestData {
+//     let filename = format!("/home/seph/src/diamond-types/benchmark_data/{}.json.gz", name);
+//     load_testing_data(&filename)
+// }
 
 // const DATASETS: &[&str] = &["automerge-paper"];
 const DATASETS: &[&str] = &["automerge-paper", "rustcode", "sveltecomponent", "seph-blog1"];
 
+/*
 fn realworld(c: &mut Criterion) {
     for name in DATASETS {
         let mut group = c.benchmark_group("realworld");
@@ -439,12 +441,13 @@ fn realworld(c: &mut Criterion) {
         group.finish();
     }
 }
+*/
 
 criterion_group!(benches,
     bench_ins_append,
     bench_ins_random,
     bench_stable_ins_del,
-    realworld
+    // realworld
 );
 // criterion_group!(benches, bench_all);
 criterion_main!(benches);

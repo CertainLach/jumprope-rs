@@ -26,6 +26,7 @@ pub trait Rope: From<String> {
 
     // fn slice(&self, pos: usize, len: usize) -> Result<String, RopeError>;
 
+    #[allow(dead_code)]
     fn to_string(&self) -> String;
     
     // fn len(&self) -> usize; // in bytes

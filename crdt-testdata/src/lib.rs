@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 /// This file contains some simple helpers for loading test data. Its used by benchmarking and
 /// testing code.
-
+///
 /// (position, delete length, insert content).
 #[derive(Debug, Clone, Deserialize, Eq, PartialEq)]
 pub struct TestPatch(pub usize, pub usize, pub String);
@@ -44,7 +44,7 @@ impl TestData {
     /// This method returns a clone of the testing data using byte offsets instead of codepoint
     /// indexes.
     pub fn chars_to_bytes(&self) -> Self {
-        assert_eq!(false, self.using_byte_positions);
+        assert!(!self.using_byte_positions);
 
         let mut r = ropey::Rope::new();
 
@@ -107,7 +107,7 @@ mod tests {
     #[test]
     fn it_works() {
         let data = load_testing_data("../benchmark_data/sveltecomponent.json.gz");
-        assert!(data.txns.len() > 0);
+        assert!(!data.txns.is_empty());
     }
 
     #[test]
