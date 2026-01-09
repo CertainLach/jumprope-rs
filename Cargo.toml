@@ -1,6 +1,6 @@
 [package]
 name = "hi-doc-jumprope"
-version = "1.2.0"
+version = "1.2.1"
 authors = ["Joseph Gentle <me@josephg.com>", "Yaroslav Bolyukin <iam@lach.pw>"]
 edition = "2024"
 description = "Simple, fast rope (fancy string) library built on top of Skiplists - hi-doc fork"
