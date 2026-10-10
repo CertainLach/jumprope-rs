@@ -319,11 +319,11 @@ fn random_edits_wchar(seed: u64, verbose: bool) {
 
         if len_chars == 0 || (len_chars < 1000 && rng.random::<f32>() < 0.5) {
             // Insert.
-            let pos_chars = rng.gen_range(0..len_chars + 1);
+            let pos_chars = rng.random_range(0..len_chars + 1);
             // Convert pos to wchars
             let pos_wchar = s.chars().take(pos_chars).map(|c| c.len_utf16()).sum();
             // Sometimes generate strings longer than a single node to stress everything.
-            let text = random_unicode_string(rng.gen_range(0..20), &mut rng);
+            let text = random_unicode_string(rng.random_range(0..20), &mut rng);
             if verbose {
                 println!("Inserting '{text}' at char {pos_chars} / wchar {pos_wchar}");
                 println!(
@@ -338,8 +338,8 @@ fn random_edits_wchar(seed: u64, verbose: bool) {
             string_insert_at(&mut s, pos_chars, text.as_str());
         } else {
             // Delete
-            let pos_chars = rng.gen_range(0..len_chars);
-            let dlen_chars = min(rng.gen_range(0..10), len_chars - pos_chars);
+            let pos_chars = rng.random_range(0..len_chars);
+            let dlen_chars = min(rng.random_range(0..10), len_chars - pos_chars);
             let char_range = pos_chars..pos_chars + dlen_chars;
             let byte_range = char_range_to_byte_range(&s, char_range.clone());
             // Now convert it to a wchar range :p

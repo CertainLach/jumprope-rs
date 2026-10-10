@@ -58,7 +58,7 @@ pub(crate) fn str_chars_to_bytes_rev(s: &str, char_len: usize) -> usize {
 #[cfg(feature = "line_conversion")]
 pub(crate) fn count_lines(s: &str) -> usize {
     // I'm sure there's faster implementations of this but this will do for now.
-    s.as_bytes().iter().filter(|b| **b == ('\n' as u8)).count()
+    s.as_bytes().iter().filter(|b| **b == b'\n').count()
 }
 
 #[cfg(test)]

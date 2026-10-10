@@ -43,19 +43,11 @@
 //! Then they can *force* the rope to degrade to `O(n)` performance.
 //!
 //! The obvious protection against this is to use a good RNG, seeded with a good entropy source.
-//! This makes the random sequence impossible to predict. Luckily jumprope isn't sensitive to the
-//! performance of the RNG used. The only downside is that using a CSRNG + a good entropy source
-//! makes the compiled binary bigger.
+//! This makes the random sequence impossible to predict.
 //!
-//! So there's a feature flag: `["ddos_protection"]`. This flag configures jumprope to use a larger
-//! CSRNG instead of a PRNG. To disable it (eg for WASM), you need to compile jumprope with default
-//! features turned off:
-//!
-//! ```toml
-//! jumprope = { default-features = false }
-//! ```
-//!
-//!
+//! [`JumpRope::new()`] seeds a small, fast PRNG from std's
+//! [`RandomState`](std::hash::RandomState) - the same entropy `HashMap` relies on for its own DoS
+//! protection.
 //!
 //! # A rant on character lengths
 //!

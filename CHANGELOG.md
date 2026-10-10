@@ -1,7 +1,11 @@
-# CURRENT
+# 2.0.1
 
 - Added `is_ascii_only` - mainly only useful for optimizing lookups for some strings.
 - Microoptimizations of some wchar functions when the rope is ascii only
+- Breaking: Removed the `ddos_protection` feature flag. `JumpRope::new()` now always seeds a `SmallRng` from std's `RandomState`, so it's DoS resistant wherever `HashMap` is.
+- Breaking: Removed the `buffered` feature flag, which had no effect since 1.1.0.
+- Breaking: Removed `JumpRope::new_from_seed` and renamed `new_from_rng` -> `with_rng`.
+- Added `JumpRope::with_hasher`, which seeds a rope from any `BuildHasher`.
 
 # 1.1.2
 
