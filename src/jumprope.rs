@@ -405,7 +405,7 @@ impl JumpRope {
     }
 
     /// Creates a new, empty rope seeded from an entropy source.
-    pub fn new_from_rng(rng: &mut impl RngCore) -> Self {
+    pub fn new_from_rng(rng: &mut impl Rng) -> Self {
         Self::new_with_rng(RopeRng::from_rng(rng))
     }
 

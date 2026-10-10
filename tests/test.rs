@@ -5,36 +5,37 @@ extern crate hi_doc_jumprope as jumprope;
 
 use rand::prelude::*;
 
+use jumprope::JumpRope;
+use jumprope::JumpRopeBuf;
 use std::cmp::min;
 use std::ops::Range;
 use std::ptr;
-use jumprope::JumpRope;
-use jumprope::JumpRopeBuf;
 
 const UNI_CHARS: [char; 24] = [
-  '\n', 'a', 'b', 'c', '1', '2', '3', ' ', '_', // ASCII.
-  '©', '¥', '½', // The Latin-1 suppliment (U+80 - U+ff)
-  'Ύ', 'Δ', 'δ', 'Ϡ', // Greek (U+0370 - U+03FF)
-  '←', '↯', '↻', '⇈', // Arrows (U+2190 – U+21FF)
-  '𐆐', '𐆔', '𐆘', '𐆚', // Ancient roman symbols (U+10190 – U+101CF)
+    '\n', 'a', 'b', 'c', '1', '2', '3', ' ', '_', // ASCII.
+    '©', '¥', '½', // The Latin-1 suppliment (U+80 - U+ff)
+    'Ύ', 'Δ', 'δ', 'Ϡ', // Greek (U+0370 - U+03FF)
+    '←', '↯', '↻', '⇈', // Arrows (U+2190 – U+21FF)
+    '𐆐', '𐆔', '𐆘', '𐆚', // Ancient roman symbols (U+10190 – U+101CF)
 ];
 
 fn random_unicode_string(len: usize, rng: &mut SmallRng) -> String {
     let mut s = String::new();
     for _ in 0..len {
-        s.push(UNI_CHARS[rng.gen_range(0 .. UNI_CHARS.len())] as char);
+        s.push(UNI_CHARS[rng.random_range(0..UNI_CHARS.len())]);
     }
     s
 }
 
-const ASCII_CHARS: &[u8; 83] = b" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()[]{}<>?,./";
+const ASCII_CHARS: &[u8; 83] =
+    b" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()[]{}<>?,./";
 
 // Gross. Find a way to reuse the code from random_unicode_string.
 #[allow(unused)]
 fn random_ascii_string(len: usize, rng: &mut SmallRng) -> String {
     let mut s = String::new();
     for _ in 0..len {
-        s.push(ASCII_CHARS[rng.gen_range(0 .. ASCII_CHARS.len())] as char);
+        s.push(ASCII_CHARS[rng.random_range(0..ASCII_CHARS.len())] as char);
     }
     s
 }
@@ -47,8 +48,12 @@ fn check(r: &JumpRope, expected: &str) {
     assert_eq!(r.to_string(), expected);
     assert_eq!(r.len_bytes(), expected.len());
     assert_eq!(r.len_chars(), expected.chars().count());
-    #[cfg(feature = "wchar_conversion")] {
-        assert_eq!(r.len_wchars(), expected.chars().map(|c| c.len_utf16()).sum());
+    #[cfg(feature = "wchar_conversion")]
+    {
+        assert_eq!(
+            r.len_wchars(),
+            expected.chars().map(|c| c.len_utf16()).sum()
+        );
 
         assert_eq!(r.chars_to_wchars(r.len_chars()), r.len_wchars());
         assert_eq!(r.chars_to_wchars(0), 0);
@@ -157,15 +162,22 @@ fn really_long_ascii_string() {
 
     // Delete everything but the first and last characters
     r.remove(1..len - 1);
-    let expect = format!("{}{}", s.chars().next().unwrap(), s.chars().rev().next().unwrap());
+    let expect = format!(
+        "{}{}",
+        s.chars().next().unwrap(),
+        s.chars().next_back().unwrap()
+    );
     check(&r, expect.as_str());
 }
 
 fn string_insert_at(s: &mut String, char_pos: usize, contents: &str) {
     // If you try to write past the end of the string for now I'll just write at the end.
     // Panicing might be a better policy.
-    let byte_pos = s.char_indices().skip(char_pos).next()
-        .map(|(p, _)| p).unwrap_or(s.len());
+    let byte_pos = s
+        .char_indices()
+        .nth(char_pos)
+        .map(|(p, _)| p)
+        .unwrap_or(s.len());
 
     let old_len = s.len();
     let new_bytes = contents.len();
@@ -174,26 +186,28 @@ fn string_insert_at(s: &mut String, char_pos: usize, contents: &str) {
     //s.reserve(new_bytes);
 
     // This is sort of ugly but its fine.
-    for _ in 0..new_bytes { s.push('\0'); }
+    for _ in 0..new_bytes {
+        s.push('\0');
+    }
 
     //println!("new bytes {} {} {}", new_bytes, byte_pos, s.len() - byte_pos);
     unsafe {
         let bytes = s.as_mut_vec().as_mut_ptr();
         ptr::copy(
-            bytes.offset(byte_pos as isize),
-            bytes.offset((byte_pos + new_bytes) as isize),
-            old_len - byte_pos
+            bytes.add(byte_pos),
+            bytes.add(byte_pos + new_bytes),
+            old_len - byte_pos,
         );
-        ptr::copy_nonoverlapping(
-            contents.as_ptr(),
-            bytes.offset(byte_pos as isize),
-            new_bytes
-        );
+        ptr::copy_nonoverlapping(contents.as_ptr(), bytes.add(byte_pos), new_bytes);
     }
 }
 
-fn char_range_to_byte_range(s: &String, range: Range<usize>) -> Range<usize> {
-    let mut iter = s.char_indices().map(|(p, _)| p).skip(range.start).peekable();
+fn char_range_to_byte_range(s: &str, range: Range<usize>) -> Range<usize> {
+    let mut iter = s
+        .char_indices()
+        .map(|(p, _)| p)
+        .skip(range.start)
+        .peekable();
 
     let start = iter.peek().map_or_else(|| s.len(), |&p| p);
     let mut iter = iter.skip(range.end - range.start).peekable();
@@ -203,7 +217,7 @@ fn char_range_to_byte_range(s: &String, range: Range<usize>) -> Range<usize> {
 }
 
 fn string_del_at(s: &mut String, pos: usize, length: usize) {
-    let byte_range = char_range_to_byte_range(s, pos..pos+length);
+    let byte_range = char_range_to_byte_range(s, pos..pos + length);
 
     s.drain(byte_range);
 }
@@ -216,7 +230,9 @@ fn random_edits(seed: u64, verbose: bool) {
     let mut rng = SmallRng::seed_from_u64(seed);
 
     for _i in 0..400 {
-        if verbose { println!("{_i} s: '{s}'"); }
+        if verbose {
+            println!("{_i} s: '{s}'");
+        }
         // r.print();
 
         let len = s.chars().count();
@@ -226,15 +242,17 @@ fn random_edits(seed: u64, verbose: bool) {
         // }
         // println!("i {}: {}", i, len);
 
-        if len == 0 || (len < 1000 && rng.gen::<f32>() < 0.5) {
+        if len == 0 || (len < 1000 && rng.random::<f32>() < 0.5) {
             // Insert.
-            let pos = rng.gen_range(0..len+1);
+            let pos = rng.random_range(0..len + 1);
             // Sometimes generate strings longer than a single node to stress everything.
-            let text = random_unicode_string(rng.gen_range(0..20), &mut rng);
+            let text = random_unicode_string(rng.random_range(0..20), &mut rng);
             if verbose {
-                println!("Inserting '{text}' at char {pos} (Byte length: {}, char len: {}, wchar len: {})",
-                         text.len(), text.chars().count(),
-                         text.chars().map(|c| c.len_utf16()).sum::<usize>()
+                println!(
+                    "Inserting '{text}' at char {pos} (Byte length: {}, char len: {}, wchar len: {})",
+                    text.len(),
+                    text.chars().count(),
+                    text.chars().map(|c| c.len_utf16()).sum::<usize>()
                 );
             }
 
@@ -242,13 +260,13 @@ fn random_edits(seed: u64, verbose: bool) {
             string_insert_at(&mut s, pos, text.as_str());
         } else {
             // Delete
-            let pos = rng.gen_range(0..len);
-            let dlen = min(rng.gen_range(0..10), len - pos);
+            let pos = rng.random_range(0..len);
+            let dlen = min(rng.random_range(0..10), len - pos);
             if verbose {
                 println!("Removing {dlen} characters at {pos}");
             }
 
-            r.remove(pos..pos+dlen);
+            r.remove(pos..pos + dlen);
             string_del_at(&mut s, pos, dlen);
         }
 
@@ -275,7 +293,9 @@ fn fuzz_once() {
 #[ignore]
 fn fuzz_forever() {
     for seed in 0.. {
-        if seed % 100 == 0 { println!("seed: {seed}"); }
+        if seed % 100 == 0 {
+            println!("seed: {seed}");
+        }
         random_edits(seed, false);
     }
 }
@@ -289,27 +309,29 @@ fn random_edits_wchar(seed: u64, verbose: bool) {
     let mut rng = SmallRng::seed_from_u64(seed);
 
     for _i in 0..400 {
-        if verbose { println!("{_i} s: '{s}'"); }
+        if verbose {
+            println!("{_i} s: '{s}'");
+        }
         // r.print();
         let len_chars = s.chars().count();
 
         // println!("i {}: {}", i, len);
 
-        if len_chars == 0 || (len_chars < 1000 && rng.gen::<f32>() < 0.5) {
+        if len_chars == 0 || (len_chars < 1000 && rng.random::<f32>() < 0.5) {
             // Insert.
             let pos_chars = rng.gen_range(0..len_chars + 1);
             // Convert pos to wchars
-            let pos_wchar = s
-                .chars()
-                .take(pos_chars)
-                .map(|c| c.len_utf16())
-                .sum();
+            let pos_wchar = s.chars().take(pos_chars).map(|c| c.len_utf16()).sum();
             // Sometimes generate strings longer than a single node to stress everything.
             let text = random_unicode_string(rng.gen_range(0..20), &mut rng);
             if verbose {
                 println!("Inserting '{text}' at char {pos_chars} / wchar {pos_wchar}");
-                println!("Byte length {} char len {} / wchar len {}",
-                         text.len(), text.chars().count(), text.chars().map(|c| c.len_utf16()).sum::<usize>());
+                println!(
+                    "Byte length {} char len {} / wchar len {}",
+                    text.len(),
+                    text.chars().count(),
+                    text.chars().map(|c| c.len_utf16()).sum::<usize>()
+                );
             }
             r.insert_at_wchar(pos_wchar, text.as_str());
             // r.print();
@@ -318,17 +340,23 @@ fn random_edits_wchar(seed: u64, verbose: bool) {
             // Delete
             let pos_chars = rng.gen_range(0..len_chars);
             let dlen_chars = min(rng.gen_range(0..10), len_chars - pos_chars);
-            let char_range = pos_chars..pos_chars+dlen_chars;
+            let char_range = pos_chars..pos_chars + dlen_chars;
             let byte_range = char_range_to_byte_range(&s, char_range.clone());
             // Now convert it to a wchar range :p
-            let start_wchar = s[..byte_range.start].chars().map(|c| c.len_utf16()).sum::<usize>();
-            let len_wchar = s[byte_range.clone()].chars().map(|c| c.len_utf16()).sum::<usize>();
+            let start_wchar = s[..byte_range.start]
+                .chars()
+                .map(|c| c.len_utf16())
+                .sum::<usize>();
+            let len_wchar = s[byte_range.clone()]
+                .chars()
+                .map(|c| c.len_utf16())
+                .sum::<usize>();
             let wchar_range = start_wchar..start_wchar + len_wchar;
 
             if verbose {
-                println!("Removing {}..{} (wchar {}..{})",
-                         char_range.start, char_range.end,
-                         wchar_range.start, wchar_range.end
+                println!(
+                    "Removing {}..{} (wchar {}..{})",
+                    char_range.start, char_range.end, wchar_range.start, wchar_range.end
                 );
             }
 
@@ -358,7 +386,9 @@ fn fuzz_wchar_once() {
 #[ignore]
 fn fuzz_wchar_forever() {
     for seed in 0.. {
-        if seed % 100 == 0 { println!("seed: {seed}"); }
+        if seed % 100 == 0 {
+            println!("seed: {seed}");
+        }
         random_edits_wchar(seed, false);
     }
 }
@@ -371,8 +401,10 @@ fn random_edits_buffered(seed: u64, verbose: bool) {
     let mut rng = SmallRng::seed_from_u64(seed);
 
     for _i in 0..400 {
-    // for _i in 0..19 {
-        if verbose { println!("{_i} s: '{s}'"); }
+        // for _i in 0..19 {
+        if verbose {
+            println!("{_i} s: '{s}'");
+        }
         // r.print();
 
         let len = s.chars().count();
@@ -382,15 +414,17 @@ fn random_edits_buffered(seed: u64, verbose: bool) {
         // }
         // println!("i {}: {}", i, len);
 
-        if len == 0 || (len < 1000 && rng.gen::<f32>() < 0.5) {
+        if len == 0 || (len < 1000 && rng.random::<f32>() < 0.5) {
             // Insert.
-            let pos = rng.gen_range(0..len+1);
+            let pos = rng.random_range(0..len + 1);
             // Sometimes generate strings longer than a single node to stress everything.
-            let text = random_unicode_string(rng.gen_range(0..20), &mut rng);
+            let text = random_unicode_string(rng.random_range(0..20), &mut rng);
             if verbose {
-                println!("Inserting '{text}' at char {pos} (Byte length: {}, char len: {}, wchar len: {})",
-                         text.len(), text.chars().count(),
-                         text.chars().map(|c| c.len_utf16()).sum::<usize>()
+                println!(
+                    "Inserting '{text}' at char {pos} (Byte length: {}, char len: {}, wchar len: {})",
+                    text.len(),
+                    text.chars().count(),
+                    text.chars().map(|c| c.len_utf16()).sum::<usize>()
                 );
             }
 
@@ -398,13 +432,13 @@ fn random_edits_buffered(seed: u64, verbose: bool) {
             string_insert_at(&mut s, pos, text.as_str());
         } else {
             // Delete
-            let pos = rng.gen_range(0..len);
-            let dlen = min(rng.gen_range(0..10), len - pos);
+            let pos = rng.random_range(0..len);
+            let dlen = min(rng.random_range(0..10), len - pos);
             if verbose {
                 println!("Removing {dlen} characters at {pos}");
             }
 
-            r.remove(pos..pos+dlen);
+            r.remove(pos..pos + dlen);
             string_del_at(&mut s, pos, dlen);
         }
         // dbg!(&r);
@@ -413,7 +447,7 @@ fn random_edits_buffered(seed: u64, verbose: bool) {
 
         // Checking the length flushes the buffered op - which is a useful test, but if we do it
         // every time, the buffer won't build up and the test won't have the right coverage.
-        if rng.gen_bool(0.05) {
+        if rng.random_bool(0.05) {
             assert_eq!(r.len_chars(), s.chars().count());
         }
     }
@@ -431,7 +465,9 @@ fn fuzz_buffered_once() {
 #[ignore]
 fn fuzz_buffered_forever() {
     for seed in 0.. {
-        if seed % 1000 == 0 { println!("seed: {seed}"); }
+        if seed % 1000 == 0 {
+            println!("seed: {seed}");
+        }
         random_edits_buffered(seed, false);
     }
 }

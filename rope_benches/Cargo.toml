@@ -5,15 +5,14 @@ name = "rope_benches"
 version = "0.1.0"
 
 [build-dependencies]
-cc = "1.2"
+cc.workspace = true
 
 [dependencies]
-criterion = "0.8"
-hi-doc-jumprope = { path = ".." }
-rand = { version = "0.9", default-features = false, features = ["small_rng"] }
-ropey = "1.6.1"
-xi-rope = "0.3.0"
-an-rope = "0.3.1" # tendril feature will improve performance, but it uses an outdated dependency, which doesn't build on newer rustc versions
-crdt-testdata = { path = "../crdt-testdata" }
-#crop = { path = "../../../3rdparty/crop" }
-crop = { git = "https://github.com/noib3/crop" }
+criterion.workspace = true
+hi-doc-jumprope.workspace = true
+rand.workspace = true
+ropey.workspace = true
+xi-rope.workspace = true
+an-rope.workspace = true
+crdt-testdata.workspace = true
+crop.workspace = true

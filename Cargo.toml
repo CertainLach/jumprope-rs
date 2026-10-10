@@ -1,18 +1,30 @@
 [package]
 name = "hi-doc-jumprope"
-version = "1.2.1"
+version = "2.0.0"
 authors = ["Joseph Gentle <me@josephg.com>", "Yaroslav Bolyukin <iam@lach.pw>"]
 edition = "2024"
 description = "Simple, fast rope (fancy string) library built on top of Skiplists - hi-doc fork"
 repository = "https://github.com/CertainLach/jumprope-rs"
 license = "ISC OR Apache-2.0"
-exclude = [
-    "benchmark_data/*",
-    ".github/**",
-]
+exclude = ["benchmark_data/*", ".github/**"]
 
 [workspace]
 members = ["rope_benches", "crdt-testdata"]
+
+[workspace.dependencies]
+an-rope = "0.3.1"
+cc = "1.2"
+crdt-testdata = { path = "crdt-testdata" }
+criterion = "0.8"
+crop = { git = "https://github.com/noib3/crop" }
+flate2 = { version = "1.1.5", default-features = false }
+hi-doc-jumprope = { path = "" }
+rand = { version = "0.10.3", default-features = false }
+ropey = "1.6.1"
+serde = "1.0.228"
+serde_json = "1.0.149"
+str_indices = "0.4.4"
+xi-rope = "0.3.0"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(doc_cfg)'] }
@@ -33,12 +45,12 @@ line_conversion = []
 buffered = []
 
 [dependencies]
-rand = { version = "0.9", default-features = false, features = ["small_rng"] }
-str_indices = "0.4.4"
+rand.workspace = true
+str_indices.workspace = true
 
 [dev-dependencies]
-criterion = "0.8"
-crdt-testdata = { path = "./crdt-testdata" }
+criterion.workspace = true
+crdt-testdata.workspace = true
 
 [[bench]]
 name = "benches"
